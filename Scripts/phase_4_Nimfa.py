@@ -10,9 +10,9 @@ from matplotlib.pyplot import savefig, imshow, set_cmap
 
 
 home_directory = os.path.abspath('..')
-data_directory = home_directory + '/Data/BreastCancerOriginal/'
-results_directory = home_directory + '/Output/BreastCancerOriginal/'
-input_file = 'breast_cancer.csv'
+data_directory = home_directory + '/Data/Artificial/'
+results_directory = home_directory + '/Output/Artificial/'
+input_file = 'artificial50pct.csv'
 header_file = ''
 
 def readAndRun(input_file, header_file, output_directory, k_bottom, k_top, runs, algorithm):
@@ -142,9 +142,9 @@ def generateHeatPlot(tumor, header_list, matrix, W, H):
 def main():
     # run it (input_file, output_directory, k_bottom, k_top, runs, algorithm)
     # run using Sparse NMF
-    readAndRun(data_directory + input_file, data_directory + header_file, results_directory, 3, 7, 5, 'S')
+    readAndRun(data_directory + input_file, data_directory + header_file, results_directory, 3, 7, 25, 'S')
     # run using Standard NMF
-    readAndRun(data_directory + input_file, data_directory + header_file, results_directory, 3, 7, 5, 'N')
+    #readAndRun(data_directory + input_file, data_directory + header_file, results_directory, 3, 7, 5, 'N')
 
 if __name__ == '__main__':
     main()
