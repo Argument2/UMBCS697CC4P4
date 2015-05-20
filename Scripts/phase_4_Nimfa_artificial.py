@@ -32,10 +32,12 @@ def readAndRun(input_file, header_file, output_directory, k_bottom, k_top, runs,
         if exception.errno != errno.EEXIST:
             raise
     # read the input file
-    V = np.loadtxt(open(input_file, 'rb'), delimiter=',', skiprows=1)
-    # run NMF for all k's in [k_bottom, k_top]
+    V = np.loadtxt(open(input_file, 'rb'), delimiter=',')
+    # run NMF for all k's in [k_bottom, k_top]    
+    
     k_to_c = {}
     k_to_d = {}
+    targets = {}
     for rank in range(k_bottom, k_top):
         if algorithm == 'S':
             nmf_fit = runSNMF(V, rank, runs)
@@ -43,6 +45,9 @@ def readAndRun(input_file, header_file, output_directory, k_bottom, k_top, runs,
             print 'consensus: ', consensus
             cophenetic = nmf_fit.fit.coph_cor()
             dispersion = nmf_fit.fit.dispersion()
+            H = np.asarray(nmf_fit.coef())
+            target = GetClustersFromH(H)
+            targets[rank] = target
             print 'cophenetic correlation coefficient: ', cophenetic
             print 'dispersion coefficient: ', dispersion
             k_to_c[rank] = cophenetic
@@ -55,6 +60,9 @@ def readAndRun(input_file, header_file, output_directory, k_bottom, k_top, runs,
             print 'consensus: ', consensus
             cophenetic = nmf_fit.fit.coph_cor()
             dispersion = nmf_fit.fit.dispersion()
+            H = np.asarray(nmf_fit.coef())
+            target = GetClustersFromH(H)
+            targets[rank] = target
             print 'cophenetic correlation coefficient: ', cophenetic
             print 'dispersion coefficient: ', dispersion
             k_to_c[rank] = cophenetic
@@ -137,14 +145,31 @@ def generateHeatPlot(tumor, header_list, matrix, W, H):
     print('Basis matrix:\n%s' % W)
     print('Mixture matrix:\n%s' % H)
     plt.savefig(results_directory + plot_name)
+    
+def GetClustersFromH(H):
+    clusters = []
+    model_width = len(H[0])
+
+    print 'model width:',model_width
+
+    for col_idx in range(model_width):
+        # convert column into an array
+        col_vals = H[:,col_idx]
+
+        # determine biggest row index and it's value from the array
+        (row_idx,max_val) = max( enumerate(col_vals), key=lambda x: x[1] )
+
+        clusters.append(row_idx)
+        
+    return clusters
 
 
 def main():
     # run it (input_file, output_directory, k_bottom, k_top, runs, algorithm)
     # run using Sparse NMF
-    #readAndRun(data_directory + input_file, data_directory + header_file, results_directory, 3, 7, 25, 'S')
+    readAndRun(data_directory + input_file, data_directory + header_file, results_directory, 3, 6, 10, 'S')
     # run using Standard NMF
-    readAndRun(data_directory + input_file, data_directory + header_file, results_directory, 3, 7, 5, 'N')
+    #readAndRun(data_directory + input_file, data_directory + header_file, results_directory, 3, 7, 5, 'N')
 
 if __name__ == '__main__':
     main()
